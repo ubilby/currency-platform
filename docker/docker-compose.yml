@@ -1,0 +1,94 @@
+services:
+  # ============================================
+  # PostgreSQL - Metadata & Configuration Store
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: currency_postgres
+    
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      
+    ports:
+      - "${POSTGRES_PORT}:5432"
+      
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+      
+    restart: unless-stopped
+    
+    # Resource limits для Mac
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    
+    networks:
+      - backend
+      
+    stop_grace_period: 30s
+
+  # ============================================
+  # Adminer - Database Web UI
+  # ============================================
+  adminer:
+    image: adminer:latest
+    container_name: currency_adminer
+    
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: dracula
+      
+    ports:
+      - "${ADMINER_PORT}:8080"
+      
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+      
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+    
+    networks:
+      - backend
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  backend:
+    driver: bridge
+    name: currency_backend
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres_data:
+    name: currency_postgres_data
