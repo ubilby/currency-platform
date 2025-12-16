@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <!-- ============================================ -->
+    <!-- Profiles                                     -->
+    <!-- ============================================ -->
+    <profiles>
+        <default>
+            <max_memory_usage>10000000000</max_memory_usage>
+            <use_uncompressed_cache>0</use_uncompressed_cache>
+            <load_balancing>random</load_balancing>
+        </default>
+
+        <readonly>
+            <readonly>1</readonly>
+            <max_memory_usage>5000000000</max_memory_usage>
+        </readonly>
+    </profiles>
+
+    <!-- ============================================ -->
+    <!-- Users                                        -->
+    <!-- ============================================ -->
+    <users>
+        <!-- Default User (Full access) -->
+        <default>
+            <password></password>
+            
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            
+            <profile>default</profile>
+            <quota>default</quota>
+        </default>
+
+        <!-- Analytics User (read-only) -->
+        <analytics>
+            <password>analytics_readonly_pass</password>
+            
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            
+            <profile>readonly</profile>
+            <quota>default</quota>
+        </analytics>
+
+        <!-- Healthcheck User -->
+        <healthcheck>
+            <password></password>
+            <networks>
+                <ip>127.0.0.1</ip>
+                <ip>::1</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+        </healthcheck>
+    </users>
+
+    <!-- ============================================ -->
+    <!-- Quotas                                       -->
+    <!-- ============================================ -->
+    <quotas>
+        <default>
+            <interval>
+                <duration>3600</duration>
+                <queries>1000</queries>
+                <errors>100</errors>
+                <result_rows>1000000000</result_rows>
+                <read_rows>1000000000</read_rows>
+                <execution_time>3600</execution_time>
+            </interval>
+        </default>
+    </quotas>
+</clickhouse>
