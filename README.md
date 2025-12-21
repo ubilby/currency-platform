@@ -30,7 +30,7 @@
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/ubilby/currency-platform.git
+git clone https://github.com/YOUR_USERNAME/currency-platform.git
 cd currency-platform
 
 # 2. Setup environment
